@@ -50,6 +50,14 @@ public class ValidationItemControllerV3 {
             return "validation/v3/addForm";
         }
 
+        // 복합 검증은 이런 식으로 그냥 자바코드로 쓰는 걸 추천.
+        if(item.getPrice() != null && item.getQuantity() != null){
+            int resultPrice = item.getPrice() * item.getQuantity();
+            if(resultPrice < 10000){
+                bindingResult.reject("totalPriceMin", new Object[]{10000, resultPrice}, null);
+            }
+        }
+
         //성공 로직
         Item savedItem = itemRepository.save(item);
         redirectAttributes.addAttribute("itemId", savedItem.getId());
