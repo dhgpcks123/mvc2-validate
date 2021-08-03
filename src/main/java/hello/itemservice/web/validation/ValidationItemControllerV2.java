@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+import org.springframework.validation.ValidationUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -166,7 +167,13 @@ public class ValidationItemControllerV2 {
             bindingResult.rejectValue("itemName", "required");
             //이러면 끝. 어!? 그러면 item.itemName 은!? 바로바로 규칙이 있습니다. 왕...
             // 까보면 그냥 addError했던 거 다 해줌.
+//          leve1, level2->  new String[]{"required.item.itemName", "required"}
+            // MessageCodesResolver 기능 지원!
         }
+//      ValidationUtils.rejectIfEmptyOrWhitespace(bindingResult,"itemName","required");
+//      위에꺼랑 똑같은 거야. 공백이다.값이 안들어갔다. 그런 거 체크할 때 쓸 수 있음. empty, 공백같은 단순 기능만 제공
+
+
         if(item.getPrice() == null || item.getPrice() < 1000 || item.getPrice() > 1000000){
             bindingResult.rejectValue("price","range", new Object[]{1000, 1000000}, null);
         }
@@ -193,6 +200,13 @@ public class ValidationItemControllerV2 {
         redirectAttributes.addAttribute("status", true);
         return "redirect:/validation/v2/items/{itemId}";
     }
+    /*
+        오류 코드 관리 전략
+        "핵심은 구체적인 것에서 덜 구체적인 것으로"
+        "모든 오류 코드에 대해서 모든 메시지 각각 정의하면 관리가 힘들다;
+        범용성있는 required같은 메시지 쓰고, 아니면 required.item써
+     */
+
 
 
     @GetMapping("/{itemId}/edit")
